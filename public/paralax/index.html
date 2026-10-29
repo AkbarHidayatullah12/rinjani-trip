@@ -1,0 +1,47 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Parallax Rinjani</title>
+<style>
+:root{--bg:#0b0b10;--fg:#f2efe9}
+@media (prefers-color-scheme:light){:root{--bg:#0b0b10}}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:14px system-ui,sans-serif;overflow:hidden}
+#stage{position:absolute;inset:0;overflow:hidden;touch-action:none}
+#box{position:absolute;left:50%;top:50%;aspect-ratio:16/9;overflow:hidden;transform:translate(-50%,-50%)}
+#box img{position:absolute;inset:0;width:100%;height:100%;will-change:transform;user-select:none;-webkit-user-drag:none;pointer-events:none}
+#ui{position:absolute;left:12px;bottom:12px;background:#000a;backdrop-filter:blur(6px);padding:8px 12px;border-radius:10px;display:flex;gap:6px 14px;flex-wrap:wrap;max-width:calc(100% - 24px);font-size:12px}
+#ui label{display:flex;gap:4px;align-items:center;white-space:nowrap}
+#tilt{display:none;position:absolute;right:12px;bottom:12px;padding:8px 12px;border-radius:10px;border:0;background:#fff;color:#000}
+</style></head><body>
+<div id="stage"><div id="box"></div></div>
+<div id="ui"></div><button id="tilt">Aktifkan sensor miring</button>
+<script>
+const LAYERS=[{"id": "01_langit", "label": "Langit & Cakrawala Fajar", "depth": 0.08, "drift": 0}, {"id": "02_awan", "label": "Awan & kabut jauh", "depth": 0.16, "drift": 1}, {"id": "03_gunung_jauh", "label": "Gunung jauh", "depth": 0.28, "drift": 0}, {"id": "04_kaldera", "label": "Dinding Kaldera", "depth": 0.52, "drift": 0}, {"id": "05_air", "label": "Air Segara Anak", "depth": 0.52, "drift": 0}, {"id": "06_kabut", "label": "Kabut danau", "depth": 0.70, "drift": 1}, {"id": "07_pulau", "label": "Gunung Barujari", "depth": 0.52, "drift": 0}, {"id": "08_terdepan", "label": "Batuan & Pepohonan Depan", "depth": 1.15, "drift": 0}];
+const SRC=id=>"layers/"+id+".png";
+const STRENGTH=0.022, OVERSCAN=1.14, EASE=0.08, IDLE_MS=2500;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const box=document.getElementById('box'),ui=document.getElementById('ui');
+function fit(){const w=innerWidth,h=innerHeight;let bw=w,bh=w*9/16;if(bh<h){bh=h;bw=h*16/9}box.style.width=bw+'px';box.style.height=bh+'px'}
+fit();addEventListener('resize',fit);
+const els=LAYERS.map(L=>{const i=new Image();i.src=SRC(L.id);i.alt='';i.draggable=false;box.appendChild(i);
+ const lab=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.checked=true;cb.onchange=()=>{i.style.display=cb.checked?'':'none'};lab.append(cb,L.label);ui.appendChild(lab);return i});
+let tx=0,ty=0,cx=0,cy=0,last=-1e9;
+function setT(x,y){tx=Math.max(-1,Math.min(1,x));ty=Math.max(-1,Math.min(1,y));last=performance.now()}
+if(!reduce){
+ addEventListener('pointermove',e=>setT((e.clientX/innerWidth-.5)*2,(e.clientY/innerHeight-.5)*2));
+ addEventListener('touchmove',e=>{const t=e.touches[0];setT((t.clientX/innerWidth-.5)*2,(t.clientY/innerHeight-.5)*2)},{passive:true});
+ const btn=document.getElementById('tilt');
+ const on=()=>addEventListener('deviceorientation',e=>{if(e.gamma==null)return;setT(e.gamma/25,(e.beta-45)/25)});
+ if(window.DeviceOrientationEvent&&typeof DeviceOrientationEvent.requestPermission==='function'){btn.style.display='block';btn.onclick=async()=>{try{if(await DeviceOrientationEvent.requestPermission()==='granted'){on();btn.remove()}}catch(_){}}}
+ else if('ontouchstart' in window)on();
+}
+function frame(t){
+ let x=tx,y=ty;
+ if(!reduce&&t-last>IDLE_MS){const s=(t-last-IDLE_MS)/1000;const k=Math.min(1,s/2);x=Math.sin(t/3200)*.55*k;y=Math.sin(t/4300)*.25*k}
+ if(reduce){x=0;y=0}
+ cx+=(x-cx)*EASE;cy+=(y-cy)*EASE;
+ const W=box.clientWidth;
+ LAYERS.forEach((L,i)=>{let dx=-cx*STRENGTH*W*L.depth,dy=-cy*STRENGTH*W*L.depth*.6;
+  if(L.drift&&!reduce)dx+=Math.sin(t/9000+L.depth*10)*W*.006;
+  els[i].style.transform=`translate3d(${dx.toFixed(2)}px,${dy.toFixed(2)}px,0) scale(${OVERSCAN})`});
+ requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+</script></body></html>
