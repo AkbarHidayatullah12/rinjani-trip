@@ -129,6 +129,82 @@ export default function JalurPendakianPage() {
       {/* Tab Interaktif 5 Jalur Lengkap */}
       <TrailTabs ringkas={false} />
 
+      {/* Visual Karakteristik 3 Lanskap Jalur Utama */}
+      <section className="bg-bg-subtle py-20 border-b border-border">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="max-w-2xl mb-10">
+            <p className="text-xs font-semibold tracking-wider uppercase text-danau mb-1">
+              Visual Lapangan
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl text-fg font-normal">
+              Perbedaan visual bentang alam antar jalur
+            </h2>
+            <p className="mt-2 text-sm text-fg-muted leading-relaxed">
+              Dari padang rumput terbuka tanpa naungan, hutan hujan kanopi tinggi, hingga tebing ngarai sungai belerang.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <figure className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="aspect-[16/10] overflow-hidden">
+                <img
+                  src="/gallery/rinjani-2.jpg"
+                  alt="Savana terbuka Sembalun"
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+              <figcaption className="p-4 border-t border-border">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-danau block mb-0.5">
+                  Sisi Timur: Jalur Sembalun
+                </span>
+                <p className="font-semibold text-fg text-sm">Savana Terbuka & Bukit Penyesalan</p>
+                <p className="text-xs text-fg-muted mt-1 leading-relaxed">
+                  Jalur langsung menuju Plawangan dan puncak dengan bentang langit terbuka tanpa pepohonan lebat.
+                </p>
+              </figcaption>
+            </figure>
+
+            <figure className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="aspect-[16/10] overflow-hidden">
+                <img
+                  src="/gallery/rinjani-10.jpg"
+                  alt="Ngarai dan tebing Torean"
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+              <figcaption className="p-4 border-t border-border">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-danau block mb-0.5">
+                  Sisi Barat: Jalur Torean
+                </span>
+                <p className="font-semibold text-fg text-sm">Ngarai Curam & Air Terjun</p>
+                <p className="text-xs text-fg-muted mt-1 leading-relaxed">
+                  Menyusuri tebing vertikal sungai belerang dan Air Terjun Penimbungan langsung ke Segara Anak.
+                </p>
+              </figcaption>
+            </figure>
+
+            <figure className="bg-white rounded-lg border border-border overflow-hidden shadow-sm">
+              <div className="aspect-[16/10] overflow-hidden">
+                <img
+                  src="/gallery/rinjani-3.jpg"
+                  alt="Hutan tropis Senaru"
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+              <figcaption className="p-4 border-t border-border">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-danau block mb-0.5">
+                  Sisi Utara: Jalur Senaru
+                </span>
+                <p className="font-semibold text-fg text-sm">Rimba Kanopi Tropis Lebat</p>
+                <p className="text-xs text-fg-muted mt-1 leading-relaxed">
+                  Lintasan teduh di bawah naungan pohon raksasa berlumut dengan jalur tanah padat dan akar pohon.
+                </p>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
       {/* Tabel Komparasi Teknis */}
       <section className="bg-white py-20 border-b border-border">
         <div className="mx-auto max-w-6xl px-6">

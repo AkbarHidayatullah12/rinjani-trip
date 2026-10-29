@@ -168,6 +168,28 @@ export default function PersiapanPage() {
               </p>
             </div>
           </div>
+
+          {/* Visual Fasilitas Kamp */}
+          <div className="mt-12 rounded-lg border border-border bg-white overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-12 items-center">
+            <div className="md:col-span-6 p-6 sm:p-8">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-danau block mb-1">
+                Kenyamanan di Ketinggian 2.600 m
+              </span>
+              <h3 className="font-display text-2xl text-fg font-semibold">
+                Perkemahan Plawangan yang Nyaman & Higienis
+              </h3>
+              <p className="mt-2.5 text-xs sm:text-sm text-fg-muted leading-relaxed">
+                Setelah menempuh 7 jam pendakian dari gerbang Sembalun, tim porter kami telah mendirikan tenda dobel kanopi, menggelar matras tebal, dan menyiapkan hidangan makan malam panas berkalori tinggi sebelum Anda beristirahat untuk persiapan *summit attack* pukul 02.00 dini hari.
+              </p>
+            </div>
+            <div className="md:col-span-6 aspect-[16/10] md:aspect-auto md:h-full">
+              <img
+                src="/gallery/rinjani-11.jpg"
+                alt="Perkemahan tenda di Plawangan Sembalun di bawah langit malam"
+                className="w-full h-full object-cover min-h-[220px]"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
