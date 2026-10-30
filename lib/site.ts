@@ -7,8 +7,8 @@ export const SITE = {
   elevasiPuncak: "3.726 m dpl",
   lokasi: "Lombok, Nusa Tenggara Barat",
   kontak: {
-    whatsapp: "6281234567890",
-    whatsappDisplay: "+62 812-3456-7890",
+    whatsapp: "6282170745676",
+    whatsappDisplay: "+62 821-7074-5676",
     email: "info@rinjanitrek.id",
     alamat: "Jl. Pariwisata Senaru, Bayan, Kabupaten Lombok Utara, NTB 83354",
     jamRespons: "08.00–20.00 WITA",

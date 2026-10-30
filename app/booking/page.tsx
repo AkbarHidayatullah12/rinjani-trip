@@ -2,18 +2,29 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import PageHeader from "@/components/layout/PageHeader";
 import BookingView from "@/components/booking/BookingView";
+import { requirePageUser } from "@/lib/auth-helpers";
+import { getActivePackages } from "@/lib/packages";
 
 export const metadata: Metadata = {
   title: "Pesan Pendakian Gunung Rinjani: Paket Resmi & Verifikasi Kuota",
   description:
     "Formulir reservasi trip pendakian resmi Gunung Rinjani dengan pemandu berlisensi dan simaksi e-Rinjani TNGR. Pilih paket 2D1N, 3D2N, atau 4D3N.",
-  openGraph: {
-    title: "Pesan Pendakian Rinjani | Rinjani Trek",
-    description: "Reservasi online paket ekspedisi Gunung Rinjani terkelola resmi.",
+  robots: {
+    index: false,
+    follow: false,
   },
 };
 
-export default function BookingPage() {
+export default async function BookingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ paket?: string }>;
+}) {
+  const { paket } = await searchParams;
+  const returnUrl = paket ? `/booking?paket=${encodeURIComponent(paket)}` : "/booking";
+  const user = await requirePageUser(returnUrl);
+  const activePackages = await getActivePackages();
+
   return (
     <main className="min-h-screen bg-bg-subtle/30 pb-24">
       <PageHeader
@@ -34,10 +45,12 @@ export default function BookingPage() {
             </div>
           }
         >
-          <BookingView />
+          <BookingView
+            user={{ name: user.name, email: user.email }}
+            availablePackages={activePackages}
+          />
         </Suspense>
       </div>
     </main>
   );
 }
-

@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { packages, formatIdr } from "@/lib/data";
+import { packages, formatIdr, type Package } from "@/lib/data";
+import { SITE } from "@/lib/site";
+import Turnstile from "@/components/Turnstile";
 
 type FieldErrors = {
   packageId?: string;
@@ -15,32 +17,51 @@ type FieldErrors = {
   nationality?: string;
 };
 
-export default function BookingView() {
+interface BookingViewProps {
+  user?: {
+    name?: string | null;
+    email?: string | null;
+  } | null;
+  availablePackages?: Package[];
+}
+
+export default function BookingView({ user, availablePackages }: BookingViewProps) {
+  const packageList = availablePackages && availablePackages.length > 0 ? availablePackages : packages;
   const router = useRouter();
   const searchParams = useSearchParams();
-  const preselectedPackage = searchParams.get("paket") || packages[1].id;
+  const preselectedPackage = searchParams.get("paket") || packageList[1]?.id || packageList[0]?.id || "2d1n-sembalun";
 
   const [packageId, setPackageId] = useState(preselectedPackage);
   const [date, setDate] = useState("");
   const [participants, setParticipants] = useState(2);
   const [nationality, setNationality] = useState<"WNI" | "WNA">("WNI");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [whatsapp, setWhatsapp] = useState("");
   const [notes, setNotes] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [globalError, setGlobalError] = useState("");
+  const [hasPrefilled, setHasPrefilled] = useState(false);
+
+  useEffect(() => {
+    if (user && !hasPrefilled) {
+      if (user.name) setName(user.name);
+      if (user.email) setEmail(user.email);
+      setHasPrefilled(true);
+    }
+  }, [user, hasPrefilled]);
 
   useEffect(() => {
     const p = searchParams.get("paket");
-    if (p && packages.some((pkg) => pkg.id === p)) {
+    if (p && packageList.some((pkg) => pkg.id === p)) {
       setPackageId(p);
     }
-  }, [searchParams]);
+  }, [searchParams, packageList]);
 
-  const selectedPkg = packages.find((p) => p.id === packageId) || packages[0];
+  const selectedPkg = packageList.find((p) => p.id === packageId) || packageList[0];
 
   // Hitungan tiket resmi TNGR: WNA memiliki selisih tarif tiket konservasi
   const basePricePerPerson = selectedPkg.priceIdr;
@@ -87,10 +108,10 @@ export default function BookingView() {
         participants: String(participants),
         nationality,
         name: name.trim(),
-        email: email.trim(),
         whatsapp: normalizedWA,
-        notes: notes.trim(),
+        notes: notes ? notes.trim() : "",
         totalIdr: grandTotal,
+        turnstileToken: turnstileToken || null,
       };
 
       const res = await fetch("/api/booking", {
@@ -153,7 +174,7 @@ export default function BookingView() {
                 onChange={(e) => setPackageId(e.target.value)}
                 className="w-full rounded-md border border-border bg-white px-3.5 py-2.5 text-sm text-fg focus:border-danau focus:ring-1 focus:ring-danau focus:outline-none"
               >
-                {packages.map((pkg) => (
+                {packageList.map((pkg) => (
                   <option key={pkg.id} value={pkg.id}>
                     {pkg.name} — {pkg.duration} ({pkg.route})
                   </option>
@@ -253,16 +274,33 @@ export default function BookingView() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-fg-muted mb-1.5">
-                  Email Aktif
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-fg-muted">
+                    Email Akun
+                  </label>
+                  {user?.email && (
+                    <span className="text-[10px] text-danau font-medium bg-danau/10 px-1.5 py-0.5 rounded">
+                      Google Terverifikasi
+                    </span>
+                  )}
+                </div>
                 <input
                   type="email"
                   value={email}
+                  readOnly={!!user?.email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="budi@contoh.com"
-                  className="w-full rounded-md border border-border bg-white px-3.5 py-2.5 text-sm text-fg focus:border-danau focus:ring-1 focus:ring-danau focus:outline-none"
+                  className={`w-full rounded-md border border-border px-3.5 py-2.5 text-sm text-fg focus:outline-none ${
+                    user?.email
+                      ? "bg-bg-subtle text-fg-muted cursor-not-allowed border-dashed"
+                      : "bg-white focus:border-danau focus:ring-1 focus:ring-danau"
+                  }`}
                 />
+                {user?.email && (
+                  <p className="text-[10px] text-fg-faint mt-1">
+                    Email terkunci otomatis sesuai akun Google Anda untuk keamanan reservasi.
+                  </p>
+                )}
                 {errors.email && <p className="text-xs text-fajar mt-1">{errors.email}</p>}
               </div>
 
@@ -306,6 +344,8 @@ export default function BookingView() {
             </Link>{" "}
             pendakian Rinjani Trek.
           </p>
+
+          <Turnstile onVerify={(token) => setTurnstileToken(token)} />
 
           <button
             type="submit"
@@ -381,7 +421,7 @@ export default function BookingView() {
         <div className="p-4 rounded-lg border border-border bg-white text-xs text-fg-muted flex items-center justify-between gap-3">
           <span>Butuh konsultasi rute khusus atau rombongan &gt;12 orang?</span>
           <a
-            href="https://wa.me/6281234567890"
+            href={`https://wa.me/${SITE.kontak.whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-danau hover:underline shrink-0"

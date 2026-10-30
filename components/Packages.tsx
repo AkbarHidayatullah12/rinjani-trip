@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { packages, formatIdr } from "@/lib/data";
+import { formatIdr } from "@/lib/data";
+import { getActivePackages } from "@/lib/packages";
 
 const packageImages: Record<string, { src: string; alt: string }> = {
   "2d1n-sembalun": {
@@ -16,7 +17,9 @@ const packageImages: Record<string, { src: string; alt: string }> = {
   },
 };
 
-export default function Packages() {
+export default async function Packages() {
+  const packagesList = await getActivePackages();
+
   return (
     <section id="paket" className="bg-white py-20 md:py-24 border-b border-border">
       <div className="mx-auto max-w-6xl px-6">
@@ -34,7 +37,7 @@ export default function Packages() {
         </div>
 
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {packages.map((pkg, idx) => {
+          {packagesList.map((pkg, idx) => {
             const isFeatured = idx === 1; // 3D2N Crossing Trek
             const imgData = packageImages[pkg.id] || {
               src: "/gallery/rinjani-4.jpg",

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatIdr } from "@/lib/data";
 import { SITE } from "@/lib/site";
+import { formatCustomerToAdminMessage } from "@/lib/whatsapp";
 
 interface BookingData {
   bookingId: string;
@@ -50,9 +51,25 @@ export default function BookingConfirmClient({ kode }: { kode: string }) {
       .finally(() => setLoading(false));
   }, [kode]);
 
-  const waMessage = encodeURIComponent(
-    `Halo Rinjani Trek, saya telah mengajukan reservasi pendakian dengan Kode Booking: ${kode}. Mohon konfirmasi ketersediaan kuota e-Rinjani tanggal ${data?.date || ""}.`
-  );
+  const waMessage = data
+    ? encodeURIComponent(
+        formatCustomerToAdminMessage({
+          bookingCode: kode,
+          packageName: data.packageName || "Paket Pendakian Rinjani",
+          packageDuration: data.packageDuration,
+          packageRoute: data.packageRoute,
+          departureDate: data.date || "-",
+          participantsCount: Number(data.participants) || 1,
+          nationality: data.nationality || "WNI",
+          customerName: data.name || "Pendaki",
+          customerWhatsapp: data.whatsapp || "",
+          customerEmail: data.email || "",
+          totalPrice: data.totalIdr || 0,
+        })
+      )
+    : encodeURIComponent(
+        `Halo Tim Rinjani Trek, saya telah mengajukan reservasi pendakian dengan Kode Booking: ${kode}. Mohon konfirmasi ketersediaan kuota e-Rinjani TNGR.`
+      );
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-16 md:py-24">
@@ -138,10 +155,16 @@ export default function BookingConfirmClient({ kode }: { kode: string }) {
             <span>↗</span>
           </a>
           <Link
-            href="/"
+            href="/akun"
             className="w-full sm:w-auto px-6 py-3 rounded-md border border-border text-fg text-sm hover:bg-bg-subtle transition-colors"
           >
-            Kembali ke Beranda
+            Riwayat Akun Saya →
+          </Link>
+          <Link
+            href="/"
+            className="w-full sm:w-auto px-6 py-3 rounded-md text-fg-muted hover:text-fg text-sm hover:bg-bg-subtle transition-colors"
+          >
+            Beranda
           </Link>
         </div>
       </div>

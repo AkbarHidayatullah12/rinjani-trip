@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { SITE } from "@/lib/site";
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
   return (
     <footer className="bg-fg text-white/80 border-t border-white/10 text-sm">
       {/* 4 Kolom Utama */}
@@ -122,6 +127,9 @@ export default function Footer() {
                 {item.label}
               </Link>
             ))}
+            <Link href="/admin" className="text-white/30 hover:text-white/70 transition-colors text-[11px]">
+              Panel Operasional
+            </Link>
           </div>
         </div>
       </div>
