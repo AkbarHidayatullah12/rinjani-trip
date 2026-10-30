@@ -22,6 +22,7 @@ interface BookingData {
 
 export default function BookingConfirmClient({ kode }: { kode: string }) {
   const [data, setData] = useState<BookingData | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -29,11 +30,24 @@ export default function BookingConfirmClient({ kode }: { kode: string }) {
       if (saved) {
         try {
           setData(JSON.parse(saved));
+          return;
         } catch {
           // ignore
         }
       }
     }
+
+    // Ambil langsung dari PostgreSQL Neon jika sessionStorage kosong
+    setLoading(true);
+    fetch(`/api/booking/${kode}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((resData) => {
+        if (resData && !resData.error) {
+          setData(resData);
+        }
+      })
+      .catch((err) => console.error("Gagal memuat reservasi dari server:", err))
+      .finally(() => setLoading(false));
   }, [kode]);
 
   const waMessage = encodeURIComponent(
